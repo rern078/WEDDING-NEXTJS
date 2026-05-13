@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { publicOriginFromHeaders } from "@/lib/public-origin";
 import { EventAnalyticsSection } from "./EventAnalyticsSection";
 import { parseGalleryUrls } from "@/lib/gallery-urls";
+import { parseBankQrs } from "@/lib/bank-qrs";
 import { parseInviteLayout } from "@/lib/invite-layout-theme";
 import { EventManageClient } from "./EventManageClient";
 
@@ -53,7 +54,7 @@ export default async function ManageEventPage({ params }: Props) {
     description: event.description ?? "",
     coverUrl: event.coverUrl ?? "",
     musicUrl: event.musicUrl ?? "",
-    qrCodeBank: event.qrCodeBank ?? "",
+    qrCodeBanks: parseBankQrs(event.qrCodeBanks, event.qrCodeBank),
     inviteLayout: parseInviteLayout(event.inviteLayout),
     eventDate: toDatetimeLocalInput(event.eventDate),
     publicOrigin,

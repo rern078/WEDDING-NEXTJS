@@ -5,6 +5,15 @@
   --foreground: #1c1917;
   --cream: #fdf8f6;
   --rose-deep: #881337;
+  /** Clears sticky `SiteHeader` (couple title + nav); tweak if header layout changes. */
+  --site-scroll-padding-top: 6rem;
+  /** Clears fixed invite shortcut bar + safe area when scrolling sections into view. */
+  --site-scroll-padding-bottom: 4.5rem;
+}
+
+html {
+  scroll-padding-top: var(--site-scroll-padding-top);
+  scroll-padding-bottom: var(--site-scroll-padding-bottom);
 }
 
 @theme inline {

@@ -55,9 +55,9 @@ export function InviteLayout6(p: InvitePageViewModel) {
         <InviteReveal delayIndex={di++}>
           <InviteRsvpForm slug={p.slug} layout={p.layout} />
         </InviteReveal>
-        {p.qrCodeBank ? (
+        {p.qrCodeBanks.length > 0 ? (
           <InviteReveal delayIndex={di++}>
-            <InviteBankQrSection src={p.qrCodeBank} layout={p.layout} />
+            <InviteBankQrSection srcs={p.qrCodeBanks} layout={p.layout} />
           </InviteReveal>
         ) : null}
         <InviteReveal delayIndex={di++}>

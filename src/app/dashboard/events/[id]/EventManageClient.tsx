@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { INVITE_LAYOUT_OPTIONS, type InviteLayoutKey } from "@/lib/invite-layout-theme";
 import { MAX_GALLERY_IMAGE_BYTES, MAX_GALLERY_IMAGES } from "@/lib/gallery-urls";
+import { MAX_BANK_QR_IMAGE_BYTES, MAX_BANK_QR_IMAGES } from "@/lib/bank-qrs";
 import { DEFAULT_MAP_LAT_LNG_HINT } from "@/lib/map-defaults";
 import { AdminGoogleMapPreview } from "@/components/admin/AdminGoogleMapPreview";
 
@@ -28,7 +29,7 @@ export type EventManagePayload = {
   coverUrl: string;
   musicUrl: string;
   eventDate: string;
-  qrCodeBank: string;
+  qrCodeBanks: string[];
   inviteLayout: InviteLayoutKey;
   /** Origin from request headers on first load — share URL stays SSR/client aligned. */
   publicOrigin: string;
@@ -50,7 +51,7 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
   const [description, setDescription] = useState(initial.description);
   const [coverUrl, setCoverUrl] = useState(initial.coverUrl);
   const [musicUrl, setMusicUrl] = useState(initial.musicUrl);
-  const [qrCodeBank, setQrCodeBank] = useState(initial.qrCodeBank ?? "");
+  const [qrCodeBanks, setQrCodeBanks] = useState<string[]>(initial.qrCodeBanks);
   const [galleryUrls, setGalleryUrls] = useState<string[]>(initial.galleryUrls);
   const [eventDate, setEventDate] = useState(initial.eventDate);
   const [inviteLayout, setInviteLayout] = useState<InviteLayoutKey>(initial.inviteLayout);
@@ -63,8 +64,8 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    setQrCodeBank(initial.qrCodeBank ?? "");
-  }, [initial.qrCodeBank]);
+    setQrCodeBanks(initial.qrCodeBanks);
+  }, [initial.qrCodeBanks]);
 
   useEffect(() => {
     setInviteLayout(initial.inviteLayout);
@@ -107,7 +108,7 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
         coverUrl: coverUrl || null,
         musicUrl: musicUrl || null,
         eventDate: eventDateIso,
-        qrCodeBank: qrCodeBank || null,
+        qrCodeBanks: qrCodeBanks.length > 0 ? qrCodeBanks : null,
         inviteLayout,
         galleryUrls,
         mapQuery: mapQuery.trim() || null,
@@ -167,37 +168,61 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
     router.refresh();
   }
 
-  function onBankQrFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+  async function onBankQrFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
     e.target.value = "";
-    if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setError("Please choose an image file (PNG or JPEG).");
-      return;
-    }
-    const maxBytes = 900_000;
-    if (file.size > maxBytes) {
-      setError(`Image is too large (max ${Math.round(maxBytes / 1000)}KB). Try a smaller QR export.`);
-      return;
-    }
+    if (!files.length) return;
     setError(null);
-    const reader = new FileReader();
-    reader.onload = () => {
-      const s = reader.result;
-      if (typeof s === "string") setQrCodeBank(s);
-    };
-    reader.readAsDataURL(file);
+    let next = [...qrCodeBanks];
+    for (const file of files) {
+      if (next.length >= MAX_BANK_QR_IMAGES) {
+        setError(`Bank QR is limited to ${MAX_BANK_QR_IMAGES} images.`);
+        break;
+      }
+      if (!file.type.startsWith("image/")) {
+        setError(`"${file.name}" is not an image.`);
+        continue;
+      }
+      if (file.size > MAX_BANK_QR_IMAGE_BYTES) {
+        setError(
+          `"${file.name}" is too large (max ${Math.round(MAX_BANK_QR_IMAGE_BYTES / 1000)}KB). Try a smaller QR export.`,
+        );
+        continue;
+      }
+      try {
+        next.push(await readFileAsDataUrl(file));
+      } catch {
+        setError(`Could not read "${file.name}".`);
+        return;
+      }
+    }
+    setQrCodeBanks(next);
+  }
+
+  function removeBankQrAt(index: number) {
+    setQrCodeBanks((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function moveBankQr(from: number, dir: -1 | 1) {
+    const to = from + dir;
+    if (to < 0 || to >= qrCodeBanks.length) return;
+    setQrCodeBanks((prev) => {
+      const copy = [...prev];
+      const [item] = copy.splice(from, 1);
+      copy.splice(to, 0, item);
+      return copy;
+    });
   }
 
   async function saveBankQrOnly(clear: boolean) {
     setError(null);
     setSaved(false);
     setBankSaving(true);
-    const value = clear ? null : qrCodeBank || null;
+    const value = clear ? null : qrCodeBanks.length > 0 ? qrCodeBanks : null;
     const res = await fetch(`/api/events/${initial.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ qrCodeBank: value }),
+      body: JSON.stringify({ qrCodeBanks: value }),
     });
     setBankSaving(false);
     const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -205,7 +230,7 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
       setError(data.error ?? "Could not save bank QR.");
       return;
     }
-    if (clear) setQrCodeBank("");
+    if (clear) setQrCodeBanks([]);
     setSaved(true);
     router.refresh();
   }
@@ -357,23 +382,63 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
       <section className="rounded-2xl border border-rose-100 bg-white p-5 shadow-sm">
         <h2 className="font-serif text-lg font-semibold text-rose-950">Bank transfer QR (QR_CODE_BANK)</h2>
         <p className="mt-1 text-sm text-stone-600">
-          Upload a PNG or JPEG of your bank prompt-pay / account QR. It appears on the public invite above the “scan to
-          open this invite” QR. Max ~900KB.
+          Upload PNG or JPEG images of your bank prompt-pay / account QR codes. They appear on the public invite above the
+          “scan to open this invite” QR. Max ~900KB per image, up to {MAX_BANK_QR_IMAGES} codes. Reorder with Up/Down, then
+          save.
         </p>
         <label className="mt-4 block">
-          <span className="mb-2 block text-sm font-medium text-stone-700">Upload image</span>
+          <span className="mb-2 block text-sm font-medium text-stone-700">Add images</span>
           <input
             type="file"
+            multiple
             accept="image/png,image/jpeg,image/webp"
-            onChange={onBankQrFile}
-            className="block w-full text-sm text-stone-600 file:mr-3 file:rounded-full file:border-0 file:bg-rose-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-rose-900 hover:file:bg-rose-200"
+            onChange={(e) => void onBankQrFiles(e)}
+            disabled={qrCodeBanks.length >= MAX_BANK_QR_IMAGES}
+            className="block w-full text-sm text-stone-600 file:mr-3 file:rounded-full file:border-0 file:bg-rose-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-rose-900 hover:file:bg-rose-200 disabled:opacity-50"
           />
         </label>
-        {qrCodeBank ? (
-          <div className="mt-4 flex flex-col items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element -- data URL preview */}
-            <img src={qrCodeBank} alt="Bank QR preview" width={160} height={160} className="rounded-xl border border-stone-200" />
-            <div className="flex w-full flex-col gap-2 sm:flex-row sm:justify-center">
+        {qrCodeBanks.length > 0 ? (
+          <>
+            <ul className="mt-4 space-y-3">
+              {qrCodeBanks.map((src, index) => (
+                <li
+                  key={index}
+                  className="flex flex-col gap-2 rounded-xl border border-stone-200 bg-stone-50/80 p-3 sm:flex-row sm:items-center"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- admin data URL preview */}
+                  <img src={src} alt="" className="h-24 w-24 shrink-0 rounded-lg border border-stone-200 object-contain" />
+                  <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                    <span className="text-xs text-stone-500">QR {index + 1}</span>
+                    <div className="ml-auto flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        disabled={index === 0}
+                        onClick={() => moveBankQr(index, -1)}
+                        className="rounded-full border border-stone-300 bg-white px-2.5 py-1 text-xs font-medium text-stone-800 disabled:opacity-40"
+                      >
+                        Up
+                      </button>
+                      <button
+                        type="button"
+                        disabled={index >= qrCodeBanks.length - 1}
+                        onClick={() => moveBankQr(index, 1)}
+                        className="rounded-full border border-stone-300 bg-white px-2.5 py-1 text-xs font-medium text-stone-800 disabled:opacity-40"
+                      >
+                        Down
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeBankQrAt(index)}
+                        className="rounded-full border border-stone-300 bg-white px-2.5 py-1 text-xs font-medium text-stone-800"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 flex w-full flex-col gap-2 sm:flex-row sm:justify-center">
               <button
                 type="button"
                 disabled={bankSaving}
@@ -388,12 +453,12 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
                 onClick={() => void saveBankQrOnly(true)}
                 className="rounded-full border border-stone-300 bg-white px-5 py-2.5 text-sm font-semibold text-stone-800 transition hover:bg-stone-50 disabled:opacity-60"
               >
-                Remove bank QR
+                Remove all bank QR
               </button>
             </div>
-          </div>
+          </>
         ) : (
-          <p className="mt-4 text-center text-sm text-stone-500">No bank QR yet — choose an image, then save.</p>
+          <p className="mt-4 text-center text-sm text-stone-500">No bank QR yet — choose one or more images, then save.</p>
         )}
       </section>
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { parseBankQrs } from "@/lib/bank-qrs";
 import { parseInviteLayout, siteFooterInviteTheme, type InviteLayoutKey } from "@/lib/invite-layout-theme";
 
 /** First path segment after /invite/ — aligned with `SiteHeader`. */
@@ -13,7 +14,13 @@ function inviteSlugFromPath(pathname: string | null): string | null {
   return seg && seg !== "login" && seg !== "register" ? seg : null;
 }
 
-type ResolvedInviteFooter = { slug: string; layout: InviteLayoutKey; gallery: string[] };
+type ResolvedInviteFooter = {
+  slug: string;
+  layout: InviteLayoutKey;
+  gallery: string[];
+  /** Whether bank transfer QR block is on the page — drives footer “QR code” scroll target. */
+  hasBankQr: boolean;
+};
 
 export function SiteFooter() {
   const pathname = usePathname();
@@ -32,6 +39,12 @@ export function SiteFooter() {
     return [];
   }, [slug, resolved]);
 
+  /** Bank QR section id only exists when host uploaded bank QRs; otherwise scroll to invite link QR. */
+  const qrScrollTargetId = useMemo(() => {
+    if (!slug || !resolved || resolved.slug !== slug) return "invite-qr";
+    return resolved.hasBankQr ? "invite-transfer-qr" : "invite-qr";
+  }, [slug, resolved]);
+
   const t = useMemo(() => siteFooterInviteTheme(footerLayout), [footerLayout]);
 
   useEffect(() => {
@@ -40,7 +53,14 @@ export function SiteFooter() {
     fetch(`/api/public/events/${encodeURIComponent(slug)}`)
       .then((r) => (r.ok ? r.json() : null))
       .then(
-        (data: { event?: { inviteLayout?: string | null; galleryUrls?: unknown } } | null) => {
+        (data: {
+          event?: {
+            inviteLayout?: string | null;
+            galleryUrls?: unknown;
+            qrCodeBanks?: unknown;
+            qrCodeBank?: string | null;
+          };
+        } | null) => {
           if (cancelled || !data?.event) return;
           const layout = parseInviteLayout(data.event.inviteLayout ?? undefined);
           const rawGallery = data.event.galleryUrls;
@@ -48,7 +68,8 @@ export function SiteFooter() {
             Array.isArray(rawGallery) && rawGallery.length
               ? rawGallery.filter((x): x is string => typeof x === "string").slice(0, 8)
               : [];
-          setResolved({ slug, layout, gallery });
+          const hasBankQr = parseBankQrs(data.event.qrCodeBanks, data.event.qrCodeBank ?? null).length > 0;
+          setResolved({ slug, layout, gallery, hasBankQr });
         },
       );
     return () => {
@@ -67,40 +88,42 @@ export function SiteFooter() {
   return (
     <>
       {slug ? (
-        <div className="pointer-events-none fixed inset-x-0 bottom-3 z-50 flex justify-center px-3">
-          <div className="pointer-events-auto flex flex-wrap justify-center gap-2 rounded-full border border-black/5 bg-white/90 px-2 py-2 shadow-lg shadow-black/10 backdrop-blur">
+        <div className="pointer-events-none fixed inset-x-0 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-[60] flex justify-center px-3">
+          <div
+            className={`pointer-events-auto flex flex-wrap justify-center gap-2 rounded-full px-2 py-2 ${t.floatingDock}`}
+          >
             <button
               type="button"
               onClick={() => scrollTo("invite-join")}
-              className="rounded-full px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100"
+              className="uppercase rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-semibold text-emerald-900 shadow-sm ring-1 ring-emerald-200/80 transition hover:bg-emerald-200"
             >
               Join
             </button>
             <button
               type="button"
               onClick={() => scrollTo("invite-gallery")}
-              className="rounded-full px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100"
+              className="uppercase rounded-full bg-violet-100 px-3 py-1.5 text-xs font-semibold text-violet-900 shadow-sm ring-1 ring-violet-200/80 transition hover:bg-violet-200"
             >
               Gallery
             </button>
             <button
               type="button"
               onClick={() => scrollTo("invite-rsvp")}
-              className="rounded-full px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100"
+              className="uppercase rounded-full bg-rose-100 px-3 py-1.5 text-xs font-semibold text-rose-900 shadow-sm ring-1 ring-rose-200/80 transition hover:bg-rose-200"
             >
               RSVP
             </button>
             <button
               type="button"
-              onClick={() => scrollTo("invite-qr")}
-              className="rounded-full px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100"
+              onClick={() => scrollTo(qrScrollTargetId)}
+              className="uppercase rounded-full bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-950 shadow-sm ring-1 ring-amber-200/80 transition hover:bg-amber-200"
             >
-              QR code
+              Bank QR
             </button>
             <button
               type="button"
               onClick={() => scrollTo("invite-top")}
-              className="rounded-full px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100"
+              className="uppercase rounded-full bg-sky-100 px-3 py-1.5 text-xs font-semibold text-sky-900 shadow-sm ring-1 ring-sky-200/80 transition hover:bg-sky-200"
             >
               Invite
             </button>

@@ -634,6 +634,8 @@ export function siteFooterInviteTheme(layout: InviteLayoutKey) {
         brand: "font-serif font-semibold text-emerald-950",
         muted: "text-emerald-900/60",
         link: "text-emerald-800 underline-offset-2 hover:text-emerald-950 hover:underline",
+        floatingDock:
+          "border border-emerald-200/60 bg-gradient-to-r from-emerald-50/95 via-teal-50/90 to-emerald-50/95 shadow-lg shadow-emerald-900/10 backdrop-blur-md",
       };
     case "layout3":
       return {
@@ -641,6 +643,8 @@ export function siteFooterInviteTheme(layout: InviteLayoutKey) {
         brand: "font-serif font-semibold text-amber-100",
         muted: "text-stone-500",
         link: "text-amber-200/85 underline-offset-2 hover:text-amber-50 hover:underline",
+        floatingDock:
+          "border border-amber-500/25 bg-zinc-900/92 shadow-lg shadow-black/40 backdrop-blur-md",
       };
     case "layout4":
       return {
@@ -648,6 +652,8 @@ export function siteFooterInviteTheme(layout: InviteLayoutKey) {
         brand: "font-serif font-semibold text-red-900",
         muted: "text-red-800/65",
         link: "text-red-700 underline-offset-2 hover:text-red-950 hover:underline",
+        floatingDock:
+          "border border-red-200/70 bg-gradient-to-r from-red-50/95 via-white/92 to-red-50/95 shadow-lg shadow-red-900/10 backdrop-blur-md",
       };
     case "layout5":
       return {
@@ -655,6 +661,8 @@ export function siteFooterInviteTheme(layout: InviteLayoutKey) {
         brand: "font-serif font-semibold text-pink-950",
         muted: "text-pink-900/60",
         link: "text-fuchsia-800 underline-offset-2 hover:text-pink-950 hover:underline",
+        floatingDock:
+          "border border-pink-200/75 bg-gradient-to-r from-pink-50/95 via-fuchsia-50/88 to-pink-50/95 shadow-lg shadow-pink-900/10 backdrop-blur-md",
       };
     case "layout6":
       return {
@@ -662,6 +670,8 @@ export function siteFooterInviteTheme(layout: InviteLayoutKey) {
         brand: "font-serif font-semibold text-pink-950",
         muted: "text-stone-600",
         link: "text-pink-800 underline-offset-2 hover:text-pink-950 hover:underline",
+        floatingDock:
+          "border border-pink-100/90 bg-[#fdf7f9]/96 shadow-lg shadow-pink-950/8 backdrop-blur-md",
       };
     case "layout7":
       return {
@@ -669,6 +679,8 @@ export function siteFooterInviteTheme(layout: InviteLayoutKey) {
         brand: "font-serif font-semibold text-red-950",
         muted: "text-stone-600",
         link: "text-red-900 underline-offset-2 hover:text-red-950 hover:underline",
+        floatingDock:
+          "border border-red-200/85 bg-[#faf8f7]/96 shadow-lg shadow-red-950/8 backdrop-blur-md",
       };
     default:
       return {
@@ -676,6 +688,8 @@ export function siteFooterInviteTheme(layout: InviteLayoutKey) {
         brand: "font-serif font-semibold text-rose-950",
         muted: "text-stone-600",
         link: "text-rose-800 underline-offset-2 hover:text-rose-950 hover:underline",
+        floatingDock:
+          "border border-rose-200/55 bg-gradient-to-r from-rose-50/95 via-white/92 to-rose-50/95 shadow-lg shadow-rose-900/10 backdrop-blur-md",
       };
   }
 }

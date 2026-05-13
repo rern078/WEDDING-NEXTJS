@@ -16,7 +16,8 @@ export type InvitePageViewModel = {
   /** Ordered gallery image URLs (data URLs or https). */
   galleryUrls: string[];
   musicUrl: string | null;
-  qrCodeBank: string | null;
+  /** Ordered bank-transfer QR images (data URLs or https), max 5. */
+  qrCodeBanks: string[];
   qrDataUrl: string;
   invitePath: string;
 };

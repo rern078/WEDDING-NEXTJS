@@ -35,15 +35,20 @@ function triggerAnchorDownload(href: string, filename: string) {
 type Props = {
   src: string;
   className: string;
+  /** 1-based index for download filename when multiple bank QRs exist. */
+  downloadIndex?: number;
 };
 
-export function BankTransferQrDownload({ src, className }: Props) {
+export function BankTransferQrDownload({ src, className, downloadIndex }: Props) {
   const [busy, setBusy] = useState(false);
 
   const onDownload = useCallback(async () => {
     setBusy(true);
     const ext = suggestedExtension(src);
-    const baseName = `bank-transfer-qr.${ext}`;
+    const baseName =
+      downloadIndex !== undefined && downloadIndex > 1
+        ? `bank-transfer-qr-${downloadIndex}.${ext}`
+        : `bank-transfer-qr.${ext}`;
 
     try {
       if (src.startsWith("data:")) {
@@ -65,7 +70,7 @@ export function BankTransferQrDownload({ src, className }: Props) {
     } finally {
       setBusy(false);
     }
-  }, [src]);
+  }, [src, downloadIndex]);
 
   return (
     <button type="button" onClick={onDownload} disabled={busy} className={className}>

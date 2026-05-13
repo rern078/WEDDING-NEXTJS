@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { toDbInviteLayout } from "@/lib/prisma-invite-layout";
 import { requireAdminApi } from "@/lib/require-admin";
+import { MAX_BANK_QR_IMAGE_BYTES, MAX_BANK_QR_IMAGES } from "@/lib/bank-qrs";
 
 const galleryImageEntry = z
   .string()
@@ -11,6 +12,15 @@ const galleryImageEntry = z
     (s) =>
       s.startsWith("data:image/") || (s.startsWith("https://") && s.length < 2001),
     { message: "Gallery images must be data:image URLs or short https URLs" },
+  );
+
+const bankQrEntry = z
+  .string()
+  .max(MAX_BANK_QR_IMAGE_BYTES)
+  .refine(
+    (s) =>
+      s.startsWith("data:image/") || (s.startsWith("https://") && s.length < 2001),
+    { message: "Bank QR images must be data:image URLs or short https URLs" },
   );
 
 const patchSchema = z.object({
@@ -35,18 +45,7 @@ const patchSchema = z.object({
     .optional()
     .nullable()
     .transform((v) => (v === undefined || v === null || v === "" ? null : v)),
-  qrCodeBank: z
-    .union([z.null(), z.literal(""), z.string().max(2_500_000)])
-    .optional()
-    .transform((v) => (v === undefined ? undefined : v === "" || v === null ? null : v))
-    .refine(
-      (v) =>
-        v === undefined ||
-        v === null ||
-        (typeof v === "string" &&
-          (v.startsWith("data:image/") || (v.startsWith("https://") && v.length < 2001))),
-      { message: "qrCodeBank must be a data:image URL or short https image URL" },
-    ),
+  qrCodeBanks: z.union([z.null(), z.array(bankQrEntry).max(MAX_BANK_QR_IMAGES)]).optional(),
   inviteLayout: z
     .enum(["layout1", "layout2", "layout3", "layout4", "layout5", "layout6", "layout7"])
     .optional(),
@@ -131,7 +130,10 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
         ...(data.coverUrl !== undefined && { coverUrl: data.coverUrl }),
         ...(data.musicUrl !== undefined && { musicUrl: data.musicUrl }),
         ...(data.slug !== undefined && { slug: data.slug }),
-        ...(data.qrCodeBank !== undefined && { qrCodeBank: data.qrCodeBank }),
+        ...(data.qrCodeBanks !== undefined && {
+          qrCodeBanks: data.qrCodeBanks ?? [],
+          qrCodeBank: null,
+        }),
         ...(data.inviteLayout !== undefined && { inviteLayout: toDbInviteLayout(data.inviteLayout) }),
         ...(data.galleryUrls !== undefined && { galleryUrls: data.galleryUrls ?? [] }),
         ...(data.mapQuery !== undefined && { mapQuery: data.mapQuery }),

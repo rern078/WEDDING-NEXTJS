@@ -44,8 +44,10 @@ model Event {
   galleryUrls Json?
   /// Spotify track/playlist/album share URL, or other https music link (shown as "Listen").
   musicUrl    String?  @db.Text
-  /// Bank / transfer QR image: `data:image/...;base64,...` from admin upload, or an https image URL.
+  /// Legacy single bank QR (superseded by `qrCodeBanks`; readers merge via `parseBankQrs`).
   qrCodeBank  String?  @db.Text
+  /// Bank transfer QR images: JSON array of strings (`data:image/...` or https), max 5 (enforced in API).
+  qrCodeBanks Json?
   /// Visual theme id: layout1 … layout7 (validated in app & API).
   inviteLayout String @default("layout1") @db.VarChar(16)
   ownerId     String
