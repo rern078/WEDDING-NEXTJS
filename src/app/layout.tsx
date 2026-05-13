@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { auth } from "@/auth";
 import { Providers } from "@/components/Providers";
+import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 
 const geistSans = Geist({
@@ -56,6 +57,7 @@ export default async function RootLayout({
         <Providers session={session}>
           <SiteHeader />
           <div className="flex flex-1 flex-col">{children}</div>
+          <SiteFooter />
         </Providers>
       </body>
     </html>

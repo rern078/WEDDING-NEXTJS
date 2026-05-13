@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { publicOriginFromHeaders } from "@/lib/public-origin";
 import { EventAnalyticsSection } from "./EventAnalyticsSection";
 import { parseInviteLayout } from "@/lib/invite-layout-theme";
 import { EventManageClient } from "./EventManageClient";
@@ -38,6 +40,9 @@ export default async function ManageEventPage({ params }: Props) {
     }),
   ]);
 
+  const h = await headers();
+  const publicOrigin = publicOriginFromHeaders(h);
+
   const payload = {
     id: event.id,
     slug: event.slug,
@@ -50,6 +55,7 @@ export default async function ManageEventPage({ params }: Props) {
     qrCodeBank: event.qrCodeBank ?? "",
     inviteLayout: parseInviteLayout(event.inviteLayout),
     eventDate: toDatetimeLocalInput(event.eventDate),
+    publicOrigin,
     rsvps: event.rsvps.map((r) => ({
       id: r.id,
       guestName: r.guestName,

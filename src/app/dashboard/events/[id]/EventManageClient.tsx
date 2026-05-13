@@ -27,6 +27,8 @@ export type EventManagePayload = {
   eventDate: string;
   qrCodeBank: string;
   inviteLayout: InviteLayoutKey;
+  /** Origin from request headers on first load — share URL stays SSR/client aligned. */
+  publicOrigin: string;
   rsvps: RsvpRow[];
 };
 
@@ -57,7 +59,7 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
     setInviteLayout(initial.inviteLayout);
   }, [initial.inviteLayout]);
 
-  const invitePath = typeof window !== "undefined" ? `${window.location.origin}/invite/${slug}` : `/invite/${slug}`;
+  const fullInviteShareUrl = `${initial.publicOrigin}/invite/${slug}`;
   const qrDownloadHref = `/api/events/${initial.id}/qr`;
 
   async function onSave(e: React.FormEvent) {
@@ -195,7 +197,7 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
             /invite/{slug}
           </Link>
         </p>
-        <p className="mt-1 text-xs text-stone-500">Share: {invitePath}</p>
+        <p className="mt-1 text-xs text-stone-500">Share: {fullInviteShareUrl}</p>
       </div>
 
       <section className="rounded-2xl border border-rose-100 bg-white p-5 shadow-sm">

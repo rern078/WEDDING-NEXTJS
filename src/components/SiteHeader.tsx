@@ -5,7 +5,21 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 import { SignOutButton } from "@/components/SignOutButton";
-import { parseInviteLayout, siteHeaderInviteTheme, type InviteLayoutKey } from "@/lib/invite-layout-theme";
+import {
+  parseInviteLayout,
+  siteHeaderInviteTheme,
+  type InviteLayoutKey,
+} from "@/lib/invite-layout-theme";
+
+const HEADER_SCROLL_SHADOW: Record<InviteLayoutKey, string> = {
+  layout1: "shadow-md shadow-rose-900/12",
+  layout2: "shadow-md shadow-emerald-900/18",
+  layout3: "shadow-[0_12px_40px_-12px_rgba(0,0,0,0.7)]",
+  layout4: "shadow-md shadow-red-900/20",
+  layout5: "shadow-md shadow-fuchsia-900/15",
+  layout6: "shadow-md shadow-pink-900/12",
+  layout7: "shadow-md shadow-red-950/22",
+};
 
 /** First path segment after /invite/ — works for /invite/x, /invite/x/login, etc. */
 function inviteSlugFromPath(pathname: string | null): string | null {
@@ -92,12 +106,7 @@ export function SiteHeader() {
     };
   }, [slug]);
 
-  const scrollShadow =
-    headerLayout === "layout3"
-      ? "shadow-[0_12px_40px_-12px_rgba(0,0,0,0.7)]"
-      : headerLayout === "layout2"
-        ? "shadow-md shadow-emerald-900/18"
-        : "shadow-md shadow-rose-900/12";
+  const scrollShadow = HEADER_SCROLL_SHADOW[headerLayout] ?? HEADER_SCROLL_SHADOW.layout1;
 
   return (
     <header

@@ -5,37 +5,38 @@ import { InviteQrSection } from "../InviteQrSection";
 import { InviteRsvpForm } from "../InviteRsvpForm";
 import type { InvitePageViewModel } from "../invite-page-types";
 
-export function InviteLayout2(p: InvitePageViewModel) {
+/** Layout 4 — red fresh: crisp reds, white cards, energetic gradients. */
+export function InviteLayout4(p: InvitePageViewModel) {
   return (
-    <main className="relative flex min-h-0 flex-1 flex-col bg-gradient-to-b from-teal-50/90 via-white to-emerald-50/80">
+    <main className="relative flex min-h-0 flex-1 flex-col bg-gradient-to-b from-white via-red-50/35 to-orange-50/25">
       {p.coverUrl ? (
         <InviteReveal className="shrink-0" delayIndex={0}>
-          <div className="relative h-52 w-full overflow-hidden sm:h-64">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+          <div className="relative h-56 w-full overflow-hidden sm:h-72">
+            {/* eslint-disable-next-line @next/next/no-img-element -- guest-provided URLs */}
             <img src={p.coverUrl} alt="" className="h-full w-full object-cover" />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-teal-50/95 via-white/30 to-transparent" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-red-50/95 via-white/25 to-transparent" />
           </div>
         </InviteReveal>
       ) : null}
       <div className="relative z-10 mx-auto flex w-full max-w-lg flex-1 flex-col gap-8 px-5 pb-16 pt-8 sm:pt-10">
         <InviteReveal delayIndex={1}>
           <header className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-800/85">A celebration</p>
-            <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight text-emerald-950 sm:text-5xl">{p.coupleNames}</h1>
-            <p className="mt-2 text-lg text-emerald-900/70">{p.title}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-red-600">Together we celebrate</p>
+            <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight text-red-800 sm:text-5xl">{p.coupleNames}</h1>
+            <p className="mt-2 text-lg font-medium text-red-900/75">{p.title}</p>
           </header>
         </InviteReveal>
         <InviteReveal delayIndex={2}>
-          <section className="rounded-2xl border border-emerald-200/90 bg-white/90 px-5 py-6 text-center shadow-md shadow-emerald-900/5">
-            <p className="text-sm font-semibold uppercase tracking-wider text-emerald-800/90">When</p>
+          <section className="rounded-2xl border border-red-200 bg-white/95 px-5 py-6 text-center shadow-lg shadow-red-900/10 ring-1 ring-red-100/60 backdrop-blur-sm">
+            <p className="text-sm font-semibold uppercase tracking-wider text-red-700">When</p>
             <p className="mt-1 font-medium text-stone-900">{p.when}</p>
-            <p className="mt-4 text-sm font-semibold uppercase tracking-wider text-emerald-800/90">Where</p>
+            <p className="mt-4 text-sm font-semibold uppercase tracking-wider text-red-700">Where</p>
             <p className="mt-1 text-stone-800">{p.venue}</p>
           </section>
         </InviteReveal>
         {p.description ? (
           <InviteReveal delayIndex={3}>
-            <p className="whitespace-pre-wrap text-center text-lg leading-relaxed text-emerald-950/85">{p.description}</p>
+            <p className="whitespace-pre-wrap text-center text-lg leading-relaxed text-stone-700">{p.description}</p>
           </InviteReveal>
         ) : null}
         <InviteReveal delayIndex={4}>

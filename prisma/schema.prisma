@@ -36,11 +36,14 @@ model Event {
   venue       String
   description String?  @db.Text
   coverUrl    String?
+  /// Ordered gallery images: JSON array of strings (`data:image/...` or https URLs), max length enforced in API.
+  galleryUrls Json?
   /// Spotify track/playlist/album share URL, or other https music link (shown as "Listen").
   musicUrl    String?  @db.Text
   /// Bank / transfer QR image: `data:image/...;base64,...` from admin upload, or an https image URL.
   qrCodeBank  String?  @db.Text
-  inviteLayout InviteLayout @default(layout1)
+  /// Visual theme id: layout1 … layout7 (validated in app & API).
+  inviteLayout String @default("layout1") @db.VarChar(16)
   ownerId     String
   owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   rsvps       Rsvp[]
@@ -78,11 +81,4 @@ enum RsvpStatus {
   ATTENDING
   DECLINED
   MAYBE
-}
-
-/// Public invite page visual theme (admin-selectable).
-enum InviteLayout {
-  layout1
-  layout2
-  layout3
 }

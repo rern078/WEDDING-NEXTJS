@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { toDbInviteLayout } from "@/lib/prisma-invite-layout";
 import { requireAdminApi } from "@/lib/require-admin";
 import { uniqueEventSlug } from "@/lib/slug";
 
@@ -22,7 +23,9 @@ const createSchema = z.object({
     .nullable()
     .transform((v) => (v === "" || v === undefined ? null : v)),
   musicUrl: musicUrlField,
-  inviteLayout: z.enum(["layout1", "layout2", "layout3"]).optional(),
+  inviteLayout: z
+    .enum(["layout1", "layout2", "layout3", "layout4", "layout5", "layout6", "layout7"])
+    .optional(),
 });
 
 export async function GET() {
@@ -68,7 +71,7 @@ export async function POST(req: Request) {
       coverUrl: data.coverUrl ?? null,
       musicUrl: data.musicUrl ?? null,
       ownerId: session.user.id,
-      ...(data.inviteLayout !== undefined ? { inviteLayout: data.inviteLayout } : {}),
+      ...(data.inviteLayout !== undefined ? { inviteLayout: toDbInviteLayout(data.inviteLayout) } : {}),
     },
   });
   return NextResponse.json({ event });

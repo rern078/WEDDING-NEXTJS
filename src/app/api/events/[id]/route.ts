@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { toDbInviteLayout } from "@/lib/prisma-invite-layout";
 import { requireAdminApi } from "@/lib/require-admin";
 
 const patchSchema = z.object({
@@ -37,7 +38,9 @@ const patchSchema = z.object({
           (v.startsWith("data:image/") || (v.startsWith("https://") && v.length < 2001))),
       { message: "qrCodeBank must be a data:image URL or short https image URL" },
     ),
-  inviteLayout: z.enum(["layout1", "layout2", "layout3"]).optional(),
+  inviteLayout: z
+    .enum(["layout1", "layout2", "layout3", "layout4", "layout5", "layout6", "layout7"])
+    .optional(),
 });
 
 async function assertOwner(eventId: string, userId: string) {
@@ -109,7 +112,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
         ...(data.musicUrl !== undefined && { musicUrl: data.musicUrl }),
         ...(data.slug !== undefined && { slug: data.slug }),
         ...(data.qrCodeBank !== undefined && { qrCodeBank: data.qrCodeBank }),
-        ...(data.inviteLayout !== undefined && { inviteLayout: data.inviteLayout }),
+        ...(data.inviteLayout !== undefined && { inviteLayout: toDbInviteLayout(data.inviteLayout) }),
       },
     });
     return NextResponse.json({ event });
