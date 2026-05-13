@@ -16,6 +16,16 @@ const credentialsSchema = z.object({
 function resolveAuthSecret(): string {
   const fromEnv = (process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET ?? "").trim();
   if (fromEnv.length > 0) return fromEnv;
+
+  // During `next build`, Next sets NEXT_PHASE so auth can initialize without deployment secrets.
+  // Runtime (Vercel/server) must still set AUTH_SECRET — sessions will fail without it.
+  const isNextProductionBuild =
+    process.env.NODE_ENV === "production" && process.env.NEXT_PHASE === "phase-production-build";
+
+  if (isNextProductionBuild) {
+    return "__build_time_placeholder_set_AUTH_SECRET_on_the_host__";
+  }
+
   if (process.env.NODE_ENV === "production") {
     throw new Error("Set AUTH_SECRET or NEXTAUTH_SECRET in the environment for NextAuth.");
   }
