@@ -1,0 +1,88 @@
+// PostgreSQL + Prisma 7 (connection URL in prisma.config.ts from DATABASE_URL)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+/// Host accounts (credentials). OAuth tables can be added later with @auth/prisma-adapter.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  image        String?
+  role         UserRole @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  events       Event[]
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  coupleNames String
+  eventDate   DateTime
+  venue       String
+  description String?  @db.Text
+  coverUrl    String?
+  /// Spotify track/playlist/album share URL, or other https music link (shown as "Listen").
+  musicUrl    String?  @db.Text
+  /// Bank / transfer QR image: `data:image/...;base64,...` from admin upload, or an https image URL.
+  qrCodeBank  String?  @db.Text
+  inviteLayout InviteLayout @default(layout1)
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  rsvps       Rsvp[]
+  pageViews   InvitePageView[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// Anonymous invite page opens (for analytics).
+model InvitePageView {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  userAgent String?  @db.VarChar(512)
+  referrer  String?  @db.VarChar(2048)
+
+  @@index([eventId, createdAt])
+}
+
+model Rsvp {
+  id        String     @id @default(cuid())
+  eventId   String
+  event     Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  guestName String
+  email     String?
+  status    RsvpStatus @default(PENDING)
+  message   String?    @db.Text
+  dietary   String?
+  createdAt DateTime   @default(now())
+}
+
+enum RsvpStatus {
+  PENDING
+  ATTENDING
+  DECLINED
+  MAYBE
+}
+
+/// Public invite page visual theme (admin-selectable).
+enum InviteLayout {
+  layout1
+  layout2
+  layout3
+}
