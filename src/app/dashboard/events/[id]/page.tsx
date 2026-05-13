@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { publicOriginFromHeaders } from "@/lib/public-origin";
 import { EventAnalyticsSection } from "./EventAnalyticsSection";
+import { parseGalleryUrls } from "@/lib/gallery-urls";
 import { parseInviteLayout } from "@/lib/invite-layout-theme";
 import { EventManageClient } from "./EventManageClient";
 
@@ -56,6 +57,7 @@ export default async function ManageEventPage({ params }: Props) {
     inviteLayout: parseInviteLayout(event.inviteLayout),
     eventDate: toDatetimeLocalInput(event.eventDate),
     publicOrigin,
+    galleryUrls: parseGalleryUrls(event.galleryUrls),
     rsvps: event.rsvps.map((r) => ({
       id: r.id,
       guestName: r.guestName,

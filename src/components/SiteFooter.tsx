@@ -13,7 +13,7 @@ function inviteSlugFromPath(pathname: string | null): string | null {
   return seg && seg !== "login" && seg !== "register" ? seg : null;
 }
 
-type ResolvedInviteFooter = { slug: string; layout: InviteLayoutKey };
+type ResolvedInviteFooter = { slug: string; layout: InviteLayoutKey; gallery: string[] };
 
 export function SiteFooter() {
   const pathname = usePathname();
@@ -26,6 +26,12 @@ export function SiteFooter() {
     return "layout1";
   }, [slug, resolved]);
 
+  const footerGallery = useMemo<string[]>(() => {
+    if (!slug) return [];
+    if (resolved?.slug === slug) return resolved.gallery;
+    return [];
+  }, [slug, resolved]);
+
   const t = useMemo(() => siteFooterInviteTheme(footerLayout), [footerLayout]);
 
   useEffect(() => {
@@ -33,10 +39,18 @@ export function SiteFooter() {
     let cancelled = false;
     fetch(`/api/public/events/${encodeURIComponent(slug)}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((data: { event?: { inviteLayout?: string } } | null) => {
-        if (cancelled || !data?.event) return;
-        setResolved({ slug, layout: parseInviteLayout(data.event.inviteLayout) });
-      });
+      .then(
+        (data: { event?: { inviteLayout?: string | null; galleryUrls?: unknown } } | null) => {
+          if (cancelled || !data?.event) return;
+          const layout = parseInviteLayout(data.event.inviteLayout ?? undefined);
+          const rawGallery = data.event.galleryUrls;
+          const gallery =
+            Array.isArray(rawGallery) && rawGallery.length
+              ? rawGallery.filter((x): x is string => typeof x === "string").slice(0, 8)
+              : [];
+          setResolved({ slug, layout, gallery });
+        },
+      );
     return () => {
       cancelled = true;
     };
@@ -47,6 +61,20 @@ export function SiteFooter() {
   return (
     <footer className={`shrink-0 ${t.shell}`}>
       <div className="mx-auto max-w-3xl px-4 py-8 text-center sm:py-10">
+        {footerGallery.length > 0 ? (
+          <div className="mb-5 flex justify-center">
+            <div className="grid grid-cols-4 gap-4 sm:gap-5">
+              {footerGallery.map((src, i) => (
+                <div key={i} className="flex items-center justify-center">
+                  <div className="h-14 w-14 rotate-45 overflow-hidden rounded-[1.1rem] bg-stone-200/40 shadow-md sm:h-16 sm:w-16">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- gallery images from admin */}
+                    <img src={src} alt="" className="-rotate-45 h-full w-full object-cover" loading="lazy" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
         <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center">
           <span className={`text-sm ${t.brand}`}>Vows &amp; Violets</span>
           <span className={`text-xs ${t.muted}`} aria-hidden>

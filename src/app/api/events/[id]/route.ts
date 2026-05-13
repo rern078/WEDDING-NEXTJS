@@ -4,6 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { toDbInviteLayout } from "@/lib/prisma-invite-layout";
 import { requireAdminApi } from "@/lib/require-admin";
 
+const galleryImageEntry = z
+  .string()
+  .max(2_500_000)
+  .refine(
+    (s) =>
+      s.startsWith("data:image/") || (s.startsWith("https://") && s.length < 2001),
+    { message: "Gallery images must be data:image URLs or short https URLs" },
+  );
+
 const patchSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   coupleNames: z.string().min(1).max(200).optional(),
@@ -41,6 +50,7 @@ const patchSchema = z.object({
   inviteLayout: z
     .enum(["layout1", "layout2", "layout3", "layout4", "layout5", "layout6", "layout7"])
     .optional(),
+  galleryUrls: z.union([z.null(), z.array(galleryImageEntry).max(15)]).optional(),
 });
 
 async function assertOwner(eventId: string, userId: string) {
@@ -113,6 +123,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
         ...(data.slug !== undefined && { slug: data.slug }),
         ...(data.qrCodeBank !== undefined && { qrCodeBank: data.qrCodeBank }),
         ...(data.inviteLayout !== undefined && { inviteLayout: toDbInviteLayout(data.inviteLayout) }),
+        ...(data.galleryUrls !== undefined && { galleryUrls: data.galleryUrls ?? [] }),
       },
     });
     return NextResponse.json({ event });

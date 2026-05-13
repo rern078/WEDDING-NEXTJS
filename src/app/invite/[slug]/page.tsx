@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { inviteQrDataUrl } from "@/lib/invite-qr";
 import { parseInviteLayout } from "@/lib/invite-layout-theme";
 import { publicOriginFromHeaders } from "@/lib/public-origin";
+import { parseGalleryUrls } from "@/lib/gallery-urls";
 import { prisma } from "@/lib/prisma";
 import { InviteViewTracker } from "./InviteViewTracker";
 import { InviteThemedPage } from "./layouts/InviteThemedPage";
@@ -52,6 +53,7 @@ export default async function InvitePage({ params }: Props) {
     venue: event.venue,
     description: event.description,
     coverUrl: event.coverUrl,
+    galleryUrls: parseGalleryUrls(event.galleryUrls),
     musicUrl: event.musicUrl,
     qrCodeBank: event.qrCodeBank,
     qrDataUrl,

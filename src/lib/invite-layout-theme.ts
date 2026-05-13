@@ -202,6 +202,77 @@ export function bankQrBlockClasses(layout: InviteLayoutKey) {
   }
 }
 
+/** Horizontal photo gallery on public invite — palette matches layout. */
+export function gallerySectionClasses(layout: InviteLayoutKey) {
+  switch (layout) {
+    case "layout2":
+      return {
+        section: "rounded-2xl border border-emerald-200/90 bg-white/95 px-4 py-5 shadow-sm sm:px-5",
+        title: "text-center text-xs font-semibold uppercase tracking-wider text-emerald-900/90",
+        track:
+          "mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        item: "snap-center shrink-0 w-[78vw] max-w-xs overflow-hidden rounded-xl border border-emerald-100 bg-emerald-50/20 sm:w-72",
+        img: "aspect-[4/3] h-full w-full object-cover",
+      };
+    case "layout3":
+      return {
+        section:
+          "rounded-2xl border border-amber-500/15 bg-zinc-900/70 px-4 py-5 shadow-xl shadow-black/25 ring-1 ring-inset ring-white/[0.05] sm:px-5",
+        title: "text-center text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-amber-200/90",
+        track:
+          "mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        item: "snap-center shrink-0 w-[78vw] max-w-xs overflow-hidden rounded-xl border border-amber-500/15 bg-zinc-800/40 ring-1 ring-inset ring-white/[0.04] sm:w-72",
+        img: "aspect-[4/3] h-full w-full object-cover",
+      };
+    case "layout4":
+      return {
+        section: "rounded-2xl border border-red-200 bg-white px-4 py-5 shadow-lg shadow-red-900/10 sm:px-5",
+        title: "text-center text-xs font-semibold uppercase tracking-wider text-red-800",
+        track:
+          "mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        item: "snap-center shrink-0 w-[78vw] max-w-xs overflow-hidden rounded-xl border border-red-100 bg-red-50/30 sm:w-72",
+        img: "aspect-[4/3] h-full w-full object-cover",
+      };
+    case "layout5":
+      return {
+        section:
+          "rounded-2xl border border-pink-200 bg-gradient-to-b from-white to-pink-50/90 px-4 py-5 shadow-md shadow-pink-500/10 sm:px-5",
+        title: "text-center text-xs font-semibold uppercase tracking-wider text-pink-900",
+        track:
+          "mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        item: "snap-center shrink-0 w-[78vw] max-w-xs overflow-hidden rounded-xl border border-pink-200 bg-white/80 sm:w-72",
+        img: "aspect-[4/3] h-full w-full object-cover",
+      };
+    case "layout6":
+      return {
+        section: "rounded-3xl border border-pink-100 bg-white/90 px-4 py-5 shadow-sm sm:px-5",
+        title: "text-center text-xs font-semibold uppercase tracking-wider text-pink-900/90",
+        track:
+          "mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        item: "snap-center shrink-0 w-[78vw] max-w-xs overflow-hidden rounded-2xl border border-pink-100 bg-pink-50/40 sm:w-72",
+        img: "aspect-[4/3] h-full w-full object-cover",
+      };
+    case "layout7":
+      return {
+        section: "rounded-3xl border border-red-200/90 bg-[#fdfcfb] px-4 py-5 shadow-md sm:px-5",
+        title: "text-center text-xs font-semibold uppercase tracking-wider text-red-950",
+        track:
+          "mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        item: "snap-center shrink-0 w-[78vw] max-w-xs overflow-hidden rounded-2xl border border-red-100 bg-white sm:w-72",
+        img: "aspect-[4/3] h-full w-full object-cover",
+      };
+    default:
+      return {
+        section: "rounded-2xl border border-rose-100 bg-white/90 px-4 py-5 shadow-sm sm:px-5",
+        title: "text-center text-xs font-semibold uppercase tracking-wider text-rose-900/90",
+        track:
+          "mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        item: "snap-center shrink-0 w-[78vw] max-w-xs overflow-hidden rounded-xl border border-rose-100 bg-rose-50/40 sm:w-72",
+        img: "aspect-[4/3] h-full w-full object-cover",
+      };
+  }
+}
+
 export function rsvpFormClasses(layout: InviteLayoutKey) {
   switch (layout) {
     case "layout2":

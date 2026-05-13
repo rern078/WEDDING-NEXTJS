@@ -14,6 +14,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
       venue: true,
       description: true,
       coverUrl: true,
+      galleryUrls: true,
       musicUrl: true,
       inviteLayout: true,
     },

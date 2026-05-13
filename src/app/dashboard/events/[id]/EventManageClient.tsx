@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { INVITE_LAYOUT_OPTIONS, type InviteLayoutKey } from "@/lib/invite-layout-theme";
+import { MAX_GALLERY_IMAGE_BYTES, MAX_GALLERY_IMAGES } from "@/lib/gallery-urls";
 
 type RsvpRow = {
   id: string;
@@ -29,6 +30,7 @@ export type EventManagePayload = {
   inviteLayout: InviteLayoutKey;
   /** Origin from request headers on first load — share URL stays SSR/client aligned. */
   publicOrigin: string;
+  galleryUrls: string[];
   rsvps: RsvpRow[];
 };
 
@@ -42,12 +44,14 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
   const [coverUrl, setCoverUrl] = useState(initial.coverUrl);
   const [musicUrl, setMusicUrl] = useState(initial.musicUrl);
   const [qrCodeBank, setQrCodeBank] = useState(initial.qrCodeBank ?? "");
+  const [galleryUrls, setGalleryUrls] = useState<string[]>(initial.galleryUrls);
   const [eventDate, setEventDate] = useState(initial.eventDate);
   const [inviteLayout, setInviteLayout] = useState<InviteLayoutKey>(initial.inviteLayout);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [bankSaving, setBankSaving] = useState(false);
+  const [gallerySaving, setGallerySaving] = useState(false);
   const [layoutSaving, setLayoutSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -58,6 +62,10 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
   useEffect(() => {
     setInviteLayout(initial.inviteLayout);
   }, [initial.inviteLayout]);
+
+  useEffect(() => {
+    setGalleryUrls(initial.galleryUrls);
+  }, [initial.galleryUrls]);
 
   const fullInviteShareUrl = `${initial.publicOrigin}/invite/${slug}`;
   const qrDownloadHref = `/api/events/${initial.id}/qr`;
@@ -89,6 +97,7 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
         eventDate: eventDateIso,
         qrCodeBank: qrCodeBank || null,
         inviteLayout,
+        galleryUrls,
       }),
     });
     setLoading(false);
@@ -183,6 +192,81 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
       return;
     }
     if (clear) setQrCodeBank("");
+    setSaved(true);
+    router.refresh();
+  }
+
+  function readFileAsDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => {
+        if (typeof r.result === "string") resolve(r.result);
+        else reject(new Error("read"));
+      };
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(file);
+    });
+  }
+
+  async function onGalleryFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = "";
+    if (!files.length) return;
+    setError(null);
+    let next = [...galleryUrls];
+    for (const file of files) {
+      if (next.length >= MAX_GALLERY_IMAGES) {
+        setError(`Gallery is limited to ${MAX_GALLERY_IMAGES} photos.`);
+        break;
+      }
+      if (!file.type.startsWith("image/")) {
+        setError(`"${file.name}" is not an image.`);
+        continue;
+      }
+      if (file.size > MAX_GALLERY_IMAGE_BYTES) {
+        setError(`"${file.name}" is too large (max ${Math.round(MAX_GALLERY_IMAGE_BYTES / 1000)}KB).`);
+        continue;
+      }
+      try {
+        next.push(await readFileAsDataUrl(file));
+      } catch {
+        setError(`Could not read "${file.name}".`);
+        return;
+      }
+    }
+    setGalleryUrls(next);
+  }
+
+  function removeGalleryAt(index: number) {
+    setGalleryUrls((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function moveGallery(from: number, dir: -1 | 1) {
+    const to = from + dir;
+    if (to < 0 || to >= galleryUrls.length) return;
+    setGalleryUrls((prev) => {
+      const copy = [...prev];
+      const [item] = copy.splice(from, 1);
+      copy.splice(to, 0, item);
+      return copy;
+    });
+  }
+
+  async function saveGalleryOnly() {
+    setError(null);
+    setSaved(false);
+    setGallerySaving(true);
+    const res = await fetch(`/api/events/${initial.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ galleryUrls }),
+    });
+    setGallerySaving(false);
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    if (!res.ok) {
+      setError(data.error ?? "Could not save gallery.");
+      return;
+    }
     setSaved(true);
     router.refresh();
   }
@@ -297,6 +381,80 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
         ) : (
           <p className="mt-4 text-center text-sm text-stone-500">No bank QR yet — choose an image, then save.</p>
         )}
+      </section>
+
+      <section className="rounded-2xl border border-rose-100 bg-white p-5 shadow-sm">
+        <h2 className="font-serif text-lg font-semibold text-rose-950">Photo gallery</h2>
+        <p className="mt-1 text-sm text-stone-600">
+          Add several images; they appear on the public invite in a horizontal gallery. Same per-file size limit as the bank
+          QR (~900KB), up to {MAX_GALLERY_IMAGES} photos. Reorder with Up/Down, then save.
+        </p>
+        <label className="mt-4 block">
+          <span className="mb-2 block text-sm font-medium text-stone-700">Add images</span>
+          <input
+            type="file"
+            multiple
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            onChange={(e) => void onGalleryFiles(e)}
+            className="block w-full text-sm text-stone-600 file:mr-3 file:rounded-full file:border-0 file:bg-rose-100 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-rose-900 hover:file:bg-rose-200"
+          />
+        </label>
+        {galleryUrls.length > 0 ? (
+          <ul className="mt-4 space-y-3">
+            {galleryUrls.map((src, index) => (
+              <li
+                key={index}
+                className="flex flex-col gap-2 rounded-xl border border-stone-200 bg-stone-50/80 p-3 sm:flex-row sm:items-center"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- admin data URL preview */}
+                <img src={src} alt="" className="h-20 w-28 shrink-0 rounded-lg object-cover" />
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                  <span className="text-xs text-stone-500">Photo {index + 1}</span>
+                  <div className="ml-auto flex flex-wrap gap-1.5">
+                    <button
+                      type="button"
+                      disabled={index === 0}
+                      onClick={() => moveGallery(index, -1)}
+                      className="rounded-full border border-stone-300 bg-white px-2.5 py-1 text-xs font-medium text-stone-800 disabled:opacity-40"
+                    >
+                      Up
+                    </button>
+                    <button
+                      type="button"
+                      disabled={index >= galleryUrls.length - 1}
+                      onClick={() => moveGallery(index, 1)}
+                      className="rounded-full border border-stone-300 bg-white px-2.5 py-1 text-xs font-medium text-stone-800 disabled:opacity-40"
+                    >
+                      Down
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeGalleryAt(index)}
+                      className="rounded-full border border-red-200 bg-white px-2.5 py-1 text-xs font-medium text-red-800"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-4 text-center text-sm text-stone-500">No gallery photos yet.</p>
+        )}
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={gallerySaving}
+            onClick={() => void saveGalleryOnly()}
+            className="rounded-full bg-rose-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-800 disabled:opacity-60"
+          >
+            {gallerySaving ? "Saving gallery…" : "Save gallery only"}
+          </button>
+        </div>
+        <p className="mt-2 text-xs text-stone-500">
+          Or use <strong>Save changes</strong> below to save the gallery with the rest of the form.
+        </p>
       </section>
 
       <form onSubmit={onSave} className="space-y-4 rounded-2xl border border-rose-100 bg-white p-5 shadow-sm">

@@ -1,11 +1,14 @@
 import { InviteReveal } from "@/components/invite/InviteReveal";
 import { InviteBankQrSection } from "../InviteBankQrSection";
+import { InviteGallerySection } from "../InviteGallerySection";
 import { InviteMusicSection } from "../InviteMusicSection";
 import { InviteQrSection } from "../InviteQrSection";
 import { InviteRsvpForm } from "../InviteRsvpForm";
 import type { InvitePageViewModel } from "../invite-page-types";
 
 export function InviteLayout3(p: InvitePageViewModel) {
+  let di = 0;
+  const hasGallery = p.galleryUrls.length > 0;
   return (
     <main className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-zinc-950 text-stone-200">
       {/* Warm spotlight + deep base */}
@@ -15,7 +18,7 @@ export function InviteLayout3(p: InvitePageViewModel) {
       />
 
       {p.coverUrl ? (
-        <InviteReveal className="relative z-[1] shrink-0" delayIndex={0}>
+        <InviteReveal className="relative z-[1] shrink-0" delayIndex={di++}>
           <div className="relative h-52 w-full overflow-hidden sm:h-72">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={p.coverUrl} alt="" className="h-full w-full object-cover" />
@@ -24,7 +27,7 @@ export function InviteLayout3(p: InvitePageViewModel) {
           </div>
         </InviteReveal>
       ) : (
-        <InviteReveal className="relative z-[1] shrink-0" delayIndex={0}>
+        <InviteReveal className="relative z-[1] shrink-0" delayIndex={di++}>
           <div className="relative h-32 w-full overflow-hidden sm:h-40" aria-hidden>
             <div className="absolute inset-0 bg-gradient-to-br from-amber-950/50 via-zinc-900 to-zinc-950" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(251,191,36,0.15),transparent_55%)]" />
@@ -34,7 +37,7 @@ export function InviteLayout3(p: InvitePageViewModel) {
       )}
 
       <div className="relative z-10 mx-auto flex w-full max-w-lg flex-1 flex-col gap-10 px-5 pb-20 pt-6 sm:gap-12 sm:pt-8">
-        <InviteReveal delayIndex={1}>
+        <InviteReveal delayIndex={di++}>
           <header className="text-center">
             <div className="mx-auto mb-5 flex max-w-xs items-center justify-center gap-3">
               <span className="h-px flex-1 bg-gradient-to-r from-transparent to-amber-500/40" />
@@ -50,7 +53,7 @@ export function InviteLayout3(p: InvitePageViewModel) {
           </header>
         </InviteReveal>
 
-        <InviteReveal delayIndex={2}>
+        <InviteReveal delayIndex={di++}>
           <section className="rounded-2xl border border-amber-500/15 bg-zinc-900/70 p-6 shadow-2xl shadow-black/35 ring-1 ring-inset ring-white/[0.06] backdrop-blur-md sm:p-7">
             <div className="grid gap-8 sm:grid-cols-2 sm:gap-0 sm:divide-x sm:divide-amber-500/15">
               <div className="text-center sm:px-3">
@@ -66,7 +69,7 @@ export function InviteLayout3(p: InvitePageViewModel) {
         </InviteReveal>
 
         {p.description ? (
-          <InviteReveal delayIndex={3}>
+          <InviteReveal delayIndex={di++}>
             <div className="rounded-2xl border border-white/[0.06] bg-zinc-900/40 px-5 py-6 ring-1 ring-inset ring-amber-500/[0.07] sm:px-7">
               <p className="whitespace-pre-wrap text-center text-base leading-relaxed text-stone-300 sm:text-lg">
                 {p.description}
@@ -75,19 +78,25 @@ export function InviteLayout3(p: InvitePageViewModel) {
           </InviteReveal>
         ) : null}
 
+        {hasGallery ? (
+          <InviteReveal delayIndex={di++}>
+            <InviteGallerySection urls={p.galleryUrls} layout={p.layout} />
+          </InviteReveal>
+        ) : null}
+
         <div className="flex flex-col gap-10 sm:gap-12">
-          <InviteReveal delayIndex={4}>
+          <InviteReveal delayIndex={di++}>
             <InviteMusicSection musicUrl={p.musicUrl} layout={p.layout} />
           </InviteReveal>
-          <InviteReveal delayIndex={5}>
+          <InviteReveal delayIndex={di++}>
             <InviteRsvpForm slug={p.slug} layout={p.layout} />
           </InviteReveal>
           {p.qrCodeBank ? (
-            <InviteReveal delayIndex={6}>
+            <InviteReveal delayIndex={di++}>
               <InviteBankQrSection src={p.qrCodeBank} layout={p.layout} />
             </InviteReveal>
           ) : null}
-          <InviteReveal delayIndex={p.qrCodeBank ? 7 : 6}>
+          <InviteReveal delayIndex={di++}>
             <InviteQrSection dataUrl={p.qrDataUrl} invitePath={p.invitePath} layout={p.layout} />
           </InviteReveal>
         </div>
