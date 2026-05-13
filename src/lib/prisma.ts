@@ -7,21 +7,44 @@ const globalForPrisma = globalThis as unknown as {
   pool: Pool | undefined;
 };
 
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-  throw new Error("DATABASE_URL is not set");
-}
+function createPrismaClient(): PrismaClient {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error(
+      "DATABASE_URL is not set. Add it locally in .env and in Vercel: Project → Settings → Environment Variables (Production & Preview).",
+    );
+  }
 
-const pool = globalForPrisma.pool ?? new Pool({ connectionString });
-if (process.env.NODE_ENV !== "production") globalForPrisma.pool = pool;
+  const pool = globalForPrisma.pool ?? new Pool({ connectionString });
+  if (process.env.NODE_ENV !== "production") globalForPrisma.pool = pool;
 
-const adapter = new PrismaPg(pool);
+  const adapter = new PrismaPg(pool);
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
+  return new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
+}
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+function getPrisma(): PrismaClient {
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = createPrismaClient();
+  }
+  return globalForPrisma.prisma;
+}
+
+/**
+ * Lazy proxy so importing `@/lib/prisma` does not throw during `next build` when `DATABASE_URL`
+ * is missing from the build environment. The client is created on first real use (queries).
+ * Production/runtime still requires DATABASE_URL — set it in Vercel env vars.
+ */
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop, receiver) {
+    const client = getPrisma();
+    const value = Reflect.get(client, prop, receiver) as unknown;
+    if (typeof value === "function") {
+      return (value as (...a: unknown[]) => unknown).bind(client);
+    }
+    return value;
+  },
+});
