@@ -51,6 +51,16 @@ const patchSchema = z.object({
     .enum(["layout1", "layout2", "layout3", "layout4", "layout5", "layout6", "layout7"])
     .optional(),
   galleryUrls: z.union([z.null(), z.array(galleryImageEntry).max(15)]).optional(),
+  mapQuery: z
+    .union([z.null(), z.literal(""), z.string().max(500)])
+    .optional()
+    .transform((v) => {
+      if (v === undefined) return undefined;
+      if (v === null || v === "") return null;
+      const t = String(v).trim();
+      return t === "" ? null : t;
+    }),
+  mapEnabled: z.boolean().optional(),
 });
 
 async function assertOwner(eventId: string, userId: string) {
@@ -124,6 +134,8 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
         ...(data.qrCodeBank !== undefined && { qrCodeBank: data.qrCodeBank }),
         ...(data.inviteLayout !== undefined && { inviteLayout: toDbInviteLayout(data.inviteLayout) }),
         ...(data.galleryUrls !== undefined && { galleryUrls: data.galleryUrls ?? [] }),
+        ...(data.mapQuery !== undefined && { mapQuery: data.mapQuery }),
+        ...(data.mapEnabled !== undefined && { mapEnabled: data.mapEnabled }),
       },
     });
     return NextResponse.json({ event });

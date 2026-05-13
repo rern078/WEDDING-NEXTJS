@@ -7,6 +7,10 @@ export type InvitePageViewModel = {
   title: string;
   when: string;
   venue: string;
+  /** Maps search override; when null/empty on the server, the invite uses `venue` for the map. */
+  mapQuery: string | null;
+  /** When false, guests do not see the map section. */
+  mapEnabled: boolean;
   description: string | null;
   coverUrl: string | null;
   /** Ordered gallery image URLs (data URLs or https). */

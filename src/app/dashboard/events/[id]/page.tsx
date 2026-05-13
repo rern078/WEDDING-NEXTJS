@@ -58,6 +58,8 @@ export default async function ManageEventPage({ params }: Props) {
     eventDate: toDatetimeLocalInput(event.eventDate),
     publicOrigin,
     galleryUrls: parseGalleryUrls(event.galleryUrls),
+    mapQuery: event.mapQuery ?? "",
+    mapEnabled: event.mapEnabled ?? true,
     rsvps: event.rsvps.map((r) => ({
       id: r.id,
       guestName: r.guestName,

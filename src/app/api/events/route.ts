@@ -26,6 +26,11 @@ const createSchema = z.object({
   inviteLayout: z
     .enum(["layout1", "layout2", "layout3", "layout4", "layout5", "layout6", "layout7"])
     .optional(),
+  mapQuery: z
+    .union([z.literal(""), z.string().trim().max(500)])
+    .optional()
+    .transform((v) => (v === undefined || v === "" ? undefined : v)),
+  mapEnabled: z.boolean().optional(),
 });
 
 export async function GET() {
@@ -72,6 +77,8 @@ export async function POST(req: Request) {
       musicUrl: data.musicUrl ?? null,
       ownerId: session.user.id,
       ...(data.inviteLayout !== undefined ? { inviteLayout: toDbInviteLayout(data.inviteLayout) } : {}),
+      ...(data.mapQuery !== undefined ? { mapQuery: data.mapQuery } : {}),
+      ...(data.mapEnabled !== undefined ? { mapEnabled: data.mapEnabled } : {}),
     },
   });
   return NextResponse.json({ event });

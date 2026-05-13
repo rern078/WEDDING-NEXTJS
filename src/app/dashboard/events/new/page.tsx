@@ -2,12 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { DEFAULT_MAP_LAT_LNG_HINT } from "@/lib/map-defaults";
+import { AdminGoogleMapPreview } from "@/components/admin/AdminGoogleMapPreview";
 
 export default function NewEventPage() {
   const router = useRouter();
   const [title, setTitle] = useState("Our wedding");
   const [coupleNames, setCoupleNames] = useState("");
   const [venue, setVenue] = useState("");
+  const [mapQuery, setMapQuery] = useState("");
+  const [mapEnabled, setMapEnabled] = useState(true);
   const [description, setDescription] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
   const [musicUrl, setMusicUrl] = useState("");
@@ -26,6 +30,8 @@ export default function NewEventPage() {
         title,
         coupleNames,
         venue,
+        ...(mapQuery.trim() ? { mapQuery: mapQuery.trim() } : {}),
+        mapEnabled,
         description: description || undefined,
         coverUrl: coverUrl || undefined,
         musicUrl: musicUrl || undefined,
@@ -75,15 +81,55 @@ export default function NewEventPage() {
             className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 outline-none ring-rose-300/30 focus:border-rose-300 focus:ring-4"
           />
         </label>
-        <label className="block space-y-1.5">
-          <span className="text-sm font-medium text-stone-700">Venue</span>
-          <input
-            required
-            value={venue}
-            onChange={(e) => setVenue(e.target.value)}
-            className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 outline-none ring-rose-300/30 focus:border-rose-300 focus:ring-4"
-          />
-        </label>
+        <div>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-stone-700">Venue</span>
+            <input
+              required
+              value={venue}
+              onChange={(e) => setVenue(e.target.value)}
+              className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 outline-none ring-rose-300/30 focus:border-rose-300 focus:ring-4"
+            />
+          </label>
+          <div className="mt-3">
+            <span className="text-sm font-medium text-stone-700">Map on public invite</span>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setMapEnabled(true)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  mapEnabled
+                    ? "bg-rose-900 text-white shadow-sm"
+                    : "border border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+                }`}
+              >
+                Show map
+              </button>
+              <button
+                type="button"
+                onClick={() => setMapEnabled(false)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  !mapEnabled
+                    ? "bg-stone-800 text-white shadow-sm"
+                    : "border border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+                }`}
+              >
+                Hide map
+              </button>
+            </div>
+          </div>
+          <label className="mt-3 block space-y-1.5">
+            <span className="text-sm font-medium text-stone-700">Map search (optional)</span>
+            <input
+              value={mapQuery}
+              onChange={(e) => setMapQuery(e.target.value)}
+              maxLength={500}
+              className="w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 outline-none ring-rose-300/30 focus:border-rose-300 focus:ring-4"
+              placeholder={`Address, place, or lat,lng — e.g. ${DEFAULT_MAP_LAT_LNG_HINT} (empty = venue)`}
+            />
+          </label>
+          <AdminGoogleMapPreview venue={venue} mapQuery={mapQuery} mapEnabled={mapEnabled} />
+        </div>
         <label className="block space-y-1.5">
           <span className="text-sm font-medium text-stone-700">Message (optional)</span>
           <textarea

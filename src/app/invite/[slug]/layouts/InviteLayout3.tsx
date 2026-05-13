@@ -1,6 +1,7 @@
 import { InviteReveal } from "@/components/invite/InviteReveal";
 import { InviteBankQrSection } from "../InviteBankQrSection";
 import { InviteGallerySection } from "../InviteGallerySection";
+import { InviteMapSection } from "../InviteMapSection";
 import { InviteMusicSection } from "../InviteMusicSection";
 import { InviteQrSection } from "../InviteQrSection";
 import { InviteRsvpForm } from "../InviteRsvpForm";
@@ -10,7 +11,7 @@ export function InviteLayout3(p: InvitePageViewModel) {
   let di = 0;
   const hasGallery = p.galleryUrls.length > 0;
   return (
-    <main className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-zinc-950 text-stone-200">
+    <main id="invite-top" className="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-zinc-950 text-stone-200">
       {/* Warm spotlight + deep base */}
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_100%_60%_at_50%_-10%,rgba(212,175,55,0.14),transparent_50%),radial-gradient(ellipse_90%_55%_at_50%_110%,rgba(9,9,11,0.95),rgb(9,9,11))]"
@@ -68,6 +69,8 @@ export function InviteLayout3(p: InvitePageViewModel) {
           </section>
         </InviteReveal>
 
+        
+
         {p.description ? (
           <InviteReveal delayIndex={di++}>
             <div className="rounded-2xl border border-white/[0.06] bg-zinc-900/40 px-5 py-6 ring-1 ring-inset ring-amber-500/[0.07] sm:px-7">
@@ -99,6 +102,9 @@ export function InviteLayout3(p: InvitePageViewModel) {
           <InviteReveal delayIndex={di++}>
             <InviteQrSection dataUrl={p.qrDataUrl} invitePath={p.invitePath} layout={p.layout} />
           </InviteReveal>
+          <InviteReveal delayIndex={di++}>
+          <InviteMapSection venue={p.venue} mapQuery={p.mapQuery} mapEnabled={p.mapEnabled} layout={p.layout} />
+        </InviteReveal>
         </div>
       </div>
     </main>

@@ -17,6 +17,8 @@ export async function GET(_req: Request, ctx: { params: Promise<{ slug: string }
       galleryUrls: true,
       musicUrl: true,
       inviteLayout: true,
+      mapQuery: true,
+      mapEnabled: true,
     },
   });
   if (!event) return NextResponse.json({ error: "Not found" }, { status: 404 });

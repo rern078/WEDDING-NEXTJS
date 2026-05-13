@@ -60,7 +60,7 @@ export function InviteRsvpForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className={t.form}>
+    <form id="invite-rsvp" onSubmit={onSubmit} className={t.form}>
       <h2 className={t.h2}>RSVP</h2>
       <label className="block space-y-1.5">
         <span className={t.label}>Your name</span>

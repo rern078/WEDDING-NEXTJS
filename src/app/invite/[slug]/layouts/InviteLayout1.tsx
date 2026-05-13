@@ -1,6 +1,7 @@
 import { InviteReveal } from "@/components/invite/InviteReveal";
 import { InviteBankQrSection } from "../InviteBankQrSection";
 import { InviteGallerySection } from "../InviteGallerySection";
+import { InviteMapSection } from "../InviteMapSection";
 import { InviteMusicSection } from "../InviteMusicSection";
 import { InviteQrSection } from "../InviteQrSection";
 import { InviteRsvpForm } from "../InviteRsvpForm";
@@ -10,7 +11,7 @@ export function InviteLayout1(p: InvitePageViewModel) {
   let di = 0;
   const hasGallery = p.galleryUrls.length > 0;
   return (
-    <main className="relative flex min-h-0 flex-1 flex-col">
+    <main id="invite-top" className="relative flex min-h-0 flex-1 flex-col">
       {p.coverUrl ? (
         <InviteReveal className="shrink-0" delayIndex={di++}>
           <div className="relative h-56 w-full overflow-hidden sm:h-72">
@@ -35,6 +36,9 @@ export function InviteLayout1(p: InvitePageViewModel) {
             <p className="mt-4 text-sm font-medium text-rose-900/90">Where</p>
             <p className="mt-1 text-stone-800">{p.venue}</p>
           </section>
+        </InviteReveal>
+        <InviteReveal delayIndex={di++}>
+          <InviteMapSection venue={p.venue} mapQuery={p.mapQuery} mapEnabled={p.mapEnabled} layout={p.layout} />
         </InviteReveal>
         {p.description ? (
           <InviteReveal delayIndex={di++}>

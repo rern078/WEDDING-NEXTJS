@@ -56,6 +56,8 @@ export default async function InvitePage({ params }: Props) {
     galleryUrls: parseGalleryUrls(event.galleryUrls),
     musicUrl: event.musicUrl,
     qrCodeBank: event.qrCodeBank,
+    mapQuery: event.mapQuery,
+    mapEnabled: event.mapEnabled,
     qrDataUrl,
     invitePath,
   };

@@ -11,7 +11,7 @@ export function InviteQrSection({
 }) {
   const c = qrBlockClasses(parseInviteLayout(layout));
   return (
-    <section className={c.section}>
+    <section id="invite-qr" className={c.section}>
       <p className={c.eyebrow}>Scan to open this invite</p>
       <div className="mt-4 flex justify-center">
         {/* eslint-disable-next-line @next/next/no-img-element -- data URL from QR */}

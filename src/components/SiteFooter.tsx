@@ -58,8 +58,56 @@ export function SiteFooter() {
 
   const year = new Date().getFullYear();
 
+  function scrollTo(id: string) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   return (
-    <footer className={`shrink-0 ${t.shell}`}>
+    <>
+      {slug ? (
+        <div className="pointer-events-none fixed inset-x-0 bottom-3 z-50 flex justify-center px-3">
+          <div className="pointer-events-auto flex flex-wrap justify-center gap-2 rounded-full border border-black/5 bg-white/90 px-2 py-2 shadow-lg shadow-black/10 backdrop-blur">
+            <button
+              type="button"
+              onClick={() => scrollTo("invite-join")}
+              className="rounded-full px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100"
+            >
+              Join
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollTo("invite-gallery")}
+              className="rounded-full px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100"
+            >
+              Gallery
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollTo("invite-rsvp")}
+              className="rounded-full px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100"
+            >
+              RSVP
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollTo("invite-qr")}
+              className="rounded-full px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100"
+            >
+              QR code
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollTo("invite-top")}
+              className="rounded-full px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100"
+            >
+              Invite
+            </button>
+          </div>
+        </div>
+      ) : null}
+      <footer className={`shrink-0 ${t.shell}`}>
       <div className="mx-auto max-w-3xl px-4 py-8 text-center sm:py-10">
         {footerGallery.length > 0 ? (
           <div className="mb-5 flex justify-center">
@@ -94,6 +142,7 @@ export function SiteFooter() {
           ) : null}
         </nav>
       </div>
-    </footer>
+      </footer>
+    </>
   );
 }

@@ -24,7 +24,7 @@ export function InviteGallerySection({
   }
 
   return (
-    <section className={c.section} aria-label="Photo gallery">
+    <section id="invite-gallery" className={c.section} aria-label="Photo gallery">
       <p className={c.title}>Gallery</p>
       <div ref={trackRef} className={c.track}>
         {urls.map((src, i) => (

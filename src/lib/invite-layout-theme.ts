@@ -92,6 +92,78 @@ export function musicSectionClasses(layout: InviteLayoutKey) {
   }
 }
 
+export function mapSectionClasses(layout: InviteLayoutKey) {
+  switch (layout) {
+    case "layout2":
+      return {
+        section: "rounded-2xl border border-emerald-200/90 bg-white/95 px-5 py-5 text-center shadow-sm",
+        eyebrow: "text-xs font-semibold uppercase tracking-wider text-emerald-900/90",
+        venue: "mt-2 whitespace-pre-wrap text-sm font-medium text-stone-900",
+        btn: "mt-3 inline-flex items-center justify-center rounded-full bg-emerald-800 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-900",
+        btnSecondary:
+          "mt-3 inline-flex items-center justify-center rounded-full border border-emerald-200/90 bg-white px-6 py-2.5 text-sm font-semibold text-emerald-900 shadow-sm transition hover:bg-emerald-50",
+      };
+    case "layout3":
+      return {
+        section:
+          "rounded-2xl border border-amber-500/15 bg-zinc-900/70 px-5 py-5 text-center shadow-xl shadow-black/25 ring-1 ring-inset ring-white/[0.05] sm:px-6",
+        eyebrow: "text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-amber-200/90",
+        venue: "mt-2 whitespace-pre-wrap text-sm font-medium text-stone-100",
+        btn:
+          "mt-3 inline-flex items-center justify-center rounded-full bg-gradient-to-b from-amber-400 to-amber-600 px-7 py-2.5 text-sm font-semibold text-zinc-950 shadow-md shadow-amber-900/30 transition hover:from-amber-300 hover:to-amber-500",
+        btnSecondary:
+          "mt-3 inline-flex items-center justify-center rounded-full border border-amber-500/25 bg-zinc-800/90 px-7 py-2.5 text-sm font-semibold text-amber-50 transition hover:bg-zinc-800",
+      };
+    case "layout4":
+      return {
+        section: "rounded-2xl border border-red-200 bg-white px-5 py-5 text-center shadow-lg shadow-red-900/10",
+        eyebrow: "text-xs font-semibold uppercase tracking-wider text-red-800",
+        venue: "mt-2 whitespace-pre-wrap text-sm font-medium text-stone-900",
+        btn:
+          "mt-3 inline-flex items-center justify-center rounded-full bg-red-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-red-900/20 transition hover:bg-red-700",
+        btnSecondary:
+          "mt-3 inline-flex items-center justify-center rounded-full border border-red-200 bg-white px-6 py-2.5 text-sm font-semibold text-red-800 shadow-sm transition hover:bg-red-50",
+      };
+    case "layout5":
+      return {
+        section: "rounded-2xl border border-pink-200 bg-white/95 px-5 py-5 text-center shadow-md shadow-pink-500/10",
+        eyebrow: "text-xs font-semibold uppercase tracking-wider text-pink-900",
+        venue: "mt-2 whitespace-pre-wrap text-sm font-medium text-stone-900",
+        btn:
+          "mt-3 inline-flex items-center justify-center rounded-full bg-gradient-to-r from-fuchsia-600 to-pink-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:from-fuchsia-500 hover:to-pink-500",
+        btnSecondary:
+          "mt-3 inline-flex items-center justify-center rounded-full border border-pink-200 bg-white px-6 py-2.5 text-sm font-semibold text-pink-900 shadow-sm transition hover:bg-pink-50",
+      };
+    case "layout6":
+      return {
+        section: "rounded-3xl border border-pink-100 bg-white/90 px-5 py-5 text-center shadow-sm",
+        eyebrow: "text-xs font-semibold uppercase tracking-wider text-pink-900/90",
+        venue: "mt-2 whitespace-pre-wrap text-sm font-medium text-stone-900",
+        btn: "mt-3 inline-flex items-center justify-center rounded-full bg-pink-900 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-pink-950",
+        btnSecondary:
+          "mt-3 inline-flex items-center justify-center rounded-full border border-pink-200 bg-white px-6 py-2.5 text-sm font-semibold text-pink-900 shadow-sm transition hover:bg-pink-50",
+      };
+    case "layout7":
+      return {
+        section: "rounded-3xl border border-red-200/90 bg-white px-5 py-5 text-center shadow-sm",
+        eyebrow: "text-xs font-semibold uppercase tracking-wider text-red-950",
+        venue: "mt-2 whitespace-pre-wrap text-sm font-medium text-stone-900",
+        btn: "mt-3 inline-flex items-center justify-center rounded-full bg-red-950 px-6 py-2.5 text-sm font-semibold text-[#fdfcfb] transition hover:bg-red-900",
+        btnSecondary:
+          "mt-3 inline-flex items-center justify-center rounded-full border border-red-200 bg-[#fdfcfb] px-6 py-2.5 text-sm font-semibold text-red-950 shadow-sm transition hover:bg-red-50",
+      };
+    default:
+      return {
+        section: "rounded-2xl border border-rose-100 bg-white/90 px-5 py-5 text-center shadow-sm",
+        eyebrow: "text-xs font-semibold uppercase tracking-wider text-rose-900/90",
+        venue: "mt-2 whitespace-pre-wrap text-sm font-medium text-stone-900",
+        btn: "mt-3 inline-flex items-center justify-center rounded-full bg-rose-900 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-800",
+        btnSecondary:
+          "mt-3 inline-flex items-center justify-center rounded-full border border-rose-200 bg-white px-6 py-2.5 text-sm font-semibold text-rose-900 shadow-sm transition hover:bg-rose-50",
+      };
+  }
+}
+
 export function qrBlockClasses(layout: InviteLayoutKey) {
   switch (layout) {
     case "layout2":

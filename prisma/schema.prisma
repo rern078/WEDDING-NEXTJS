@@ -34,6 +34,10 @@ model Event {
   coupleNames String
   eventDate   DateTime
   venue       String
+  /// Optional Google Maps search text (address, place name, or `lat,lng`). Empty uses `venue` on the public invite.
+  mapQuery    String?  @db.VarChar(500)
+  /// When false, the Location / map block is hidden on the public invite.
+  mapEnabled  Boolean  @default(true)
   description String?  @db.Text
   coverUrl    String?
   /// Ordered gallery images: JSON array of strings (`data:image/...` or https URLs), max length enforced in API.

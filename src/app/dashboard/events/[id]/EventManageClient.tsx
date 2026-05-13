@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { INVITE_LAYOUT_OPTIONS, type InviteLayoutKey } from "@/lib/invite-layout-theme";
 import { MAX_GALLERY_IMAGE_BYTES, MAX_GALLERY_IMAGES } from "@/lib/gallery-urls";
+import { DEFAULT_MAP_LAT_LNG_HINT } from "@/lib/map-defaults";
+import { AdminGoogleMapPreview } from "@/components/admin/AdminGoogleMapPreview";
 
 type RsvpRow = {
   id: string;
@@ -32,6 +34,9 @@ export type EventManagePayload = {
   publicOrigin: string;
   galleryUrls: string[];
   rsvps: RsvpRow[];
+  /** Optional Google Maps search override (empty = use venue on the public map). */
+  mapQuery: string;
+  mapEnabled: boolean;
 };
 
 export function EventManageClient({ initial }: { initial: EventManagePayload }) {
@@ -40,6 +45,8 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
   const [title, setTitle] = useState(initial.title);
   const [coupleNames, setCoupleNames] = useState(initial.coupleNames);
   const [venue, setVenue] = useState(initial.venue);
+  const [mapQuery, setMapQuery] = useState(initial.mapQuery);
+  const [mapEnabled, setMapEnabled] = useState(initial.mapEnabled);
   const [description, setDescription] = useState(initial.description);
   const [coverUrl, setCoverUrl] = useState(initial.coverUrl);
   const [musicUrl, setMusicUrl] = useState(initial.musicUrl);
@@ -66,6 +73,11 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
   useEffect(() => {
     setGalleryUrls(initial.galleryUrls);
   }, [initial.galleryUrls]);
+
+  useEffect(() => {
+    setMapQuery(initial.mapQuery);
+    setMapEnabled(initial.mapEnabled);
+  }, [initial.mapQuery, initial.mapEnabled]);
 
   const fullInviteShareUrl = `${initial.publicOrigin}/invite/${slug}`;
   const qrDownloadHref = `/api/events/${initial.id}/qr`;
@@ -98,6 +110,8 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
         qrCodeBank: qrCodeBank || null,
         inviteLayout,
         galleryUrls,
+        mapQuery: mapQuery.trim() || null,
+        mapEnabled,
       }),
     });
     setLoading(false);
@@ -495,15 +509,57 @@ export function EventManageClient({ initial }: { initial: EventManagePayload }) 
             className="w-full rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-rose-300 focus:ring-4 focus:ring-rose-300/30"
           />
         </label>
-        <label className="block space-y-1.5">
-          <span className="text-sm font-medium text-stone-700">Venue</span>
-          <input
-            required
-            value={venue}
-            onChange={(e) => setVenue(e.target.value)}
-            className="w-full rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-rose-300 focus:ring-4 focus:ring-rose-300/30"
-          />
-        </label>
+        <div>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-medium text-stone-700">Venue</span>
+            <input
+              required
+              value={venue}
+              onChange={(e) => setVenue(e.target.value)}
+              className="w-full rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-rose-300 focus:ring-4 focus:ring-rose-300/30"
+            />
+          </label>
+          <div className="mt-3">
+            <span className="text-sm font-medium text-stone-700">Map on public invite</span>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setMapEnabled(true)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  mapEnabled
+                    ? "bg-rose-900 text-white shadow-sm"
+                    : "border border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+                }`}
+              >
+                Show map
+              </button>
+              <button
+                type="button"
+                onClick={() => setMapEnabled(false)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  !mapEnabled
+                    ? "bg-stone-800 text-white shadow-sm"
+                    : "border border-stone-200 bg-white text-stone-700 hover:bg-stone-50"
+                }`}
+              >
+                Hide map
+              </button>
+            </div>
+            <p className="mt-1.5 text-xs text-stone-500">When hidden, guests only see the venue line in the “When / Where” block — not the map section.</p>
+          </div>
+          <label className="mt-3 block space-y-1.5">
+            <span className="text-sm font-medium text-stone-700">Map search (optional)</span>
+            <input
+              value={mapQuery}
+              onChange={(e) => setMapQuery(e.target.value)}
+              maxLength={500}
+              className="w-full rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-rose-300 focus:ring-4 focus:ring-rose-300/30"
+              placeholder={`Address, place name, or coordinates — e.g. ${DEFAULT_MAP_LAT_LNG_HINT} (empty = venue)`}
+            />
+            <span className="text-xs text-stone-500">Leave empty to use the venue line for the map. Use coordinates for an exact pin.</span>
+          </label>
+          <AdminGoogleMapPreview venue={venue} mapQuery={mapQuery} mapEnabled={mapEnabled} />
+        </div>
         <label className="block space-y-1.5">
           <span className="text-sm font-medium text-stone-700">Message</span>
           <textarea
